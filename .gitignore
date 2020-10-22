@@ -1,0 +1,35 @@
+# Created by .ignore support plugin (hsz.mobi)
+.sass-cache/
+*.css.map
+logs
+*.log
+npm-debug.log*
+pids
+*.pid
+*.seed
+*.pid.lock
+lib-cov
+coverage
+.nyc_output
+.grunt
+.lock-wscript
+build/Release
+node_modules
+jspm_packages
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.idea
+!.idea/runConfigurations
+logs/
+test/e2e/reports
+!/template.min.css
+/settings/.*.json
+**/.DS_Store
+.vscode
+package-lock.json
+# Autodeploy files
+/autoexec.json
+/autodeploy-handler.pid
