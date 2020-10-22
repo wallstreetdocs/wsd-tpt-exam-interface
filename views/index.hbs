@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+	      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+	<title>Hello, world!</title>
+</head>
+<body>
+
+<!-- Just an image -->
+<nav class="navbar navbar-dark bg-dark">
+	<a class="navbar-brand" href="#">
+		<img src="images/logo.png" alt="">
+	</a>
+</nav>
+
+
+<div class="noauthtoken alert alert-danger alert-dismissible fade show " , style="display:none" role="alert">
+	<strong>Invalid input: </strong> Please provide an authentication token.
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+
+<div class="noendpoint alert alert-danger alert-dismissible fade show " , style="display:none" role="alert">
+	<strong>Invalid input: </strong> Please provide an endpoint (ex: http://localhost/external/exams).
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	<li class="nav-item">
+		<a class="nav-link active" id="api-tab" data-toggle="tab" href="#api-content" role="tab" aria-controls="home"
+		   aria-selected="true">API Options</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" id="demo-tab" data-toggle="tab" href="#demo-tab-content" role="tab" aria-controls="profile"
+		   aria-selected="false">Demo</a>
+	</li>
+
+</ul>
+<!-- `tab content -->
+<div class="tab-content" id="tabContent">
+	<div class="tab-pane fade show active" id="api-content" role="tabpanel" aria-labelledby="api-tab">
+		<div id="accordion">
+			<div class="card">
+				<div class="card-header" id="headingTwo">
+					<h5 class="mb-0">
+						<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+						        aria-expanded="false" aria-controls="collapseTwo">
+							Options
+						</button>
+					</h5>
+				</div>
+				<div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordion">
+					<div class="card-body">
+						<div class="form-group">
+							<label for="token">Authentication token</label>
+							<input type="email" class="form-control" id="authToken" aria-describedby="emailHelp"
+							       placeholder="Authentication token"
+							       value="nUh6yLOyu85X7K7hiJuaALUYRc2F8vohRwN1P73dhR8CGst6jN0Ebb21b4tRVZOz2KR5nCxeNFLuCfytTFifo4EibKD5QeE6H0JK0caDxl8h6YrtM5MHydrynl0KtphI52lc7jncM6j5jIHx2EwczDJYMoPPCtgHbReMXJ17y1VdATgQFciKi44glGNyVfcQnkcZcrZaywnKZcWqb5eW0V047C8P5ShaOWlqa2j5368iS1CLLsr8vb2rWppFslzd">
+						</div>
+						<div class="form-group">
+							<label for="endpoint">Endpoint</label>
+							<input type="text" class="form-control" id="endpoint" placeholder="Endpoint"
+							       value="http://localhost:3000">
+						</div>
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="debugMode">
+							<label class="form-check-label" for="debugMode">Debug mode?</label>
+						</div>
+					</div>
+				</div>
+				<div style="width: 200px;padding:16px">
+					<button id="setOptions" type="button" class="btn btn-primary">Set options</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div class="tab-pane fade" id="demo-tab-content" role="tabpanel" aria-labelledby="demo-tab">
+		<h1>Demo 1 - Default rendering</h1>
+		<h5>Ensure you have entered an Auth token and endpoint on the API Options tab...</h5>
+		<hr />
+		<button type="button" class="btn btn-primary getAllExams">
+			Get all exams
+		</button>
+		<button type="button" class="btn btn-primary beginTest" id=level1Test">
+			Begin Level 1 Test
+		</button>
+		<button type="button" class="btn btn-primary beginTest" id=level2Test">
+			Begin Level 2 Test
+		</button>
+		<button type="button" class="btn btn-primary beginTest" id=level3Test">
+			Begin Level 3 Test
+		</button>
+		<hr />
+		<div id="examContainer"></div>
+	</div>
+
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<!-- wsdCertificationIF must come before our other scripts -->
+<script src="javascripts/wsdCertificationIF.js"></script>
+<script src="javascripts/utils.js"></script>
+<script src="javascripts/main.js"></script>
+
+</body>
+</html>
