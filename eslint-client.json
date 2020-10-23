@@ -1,0 +1,30 @@
+{
+	"env"          : {
+		"browser": true,
+		"es6"    : false
+	},
+	"globals"      : {
+		"jQuery"          : true,
+		"WSD"             : true,
+		"Router"          : true,
+		"Promise"         : true,
+		"dialogPolyfill"  : true,
+		"componentHandler": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 5
+	},
+	"extends"      : "eslint:recommended",
+	"rules"        : {
+		"no-constant-condition": "off",
+		"no-fallthrough"       : "off",
+		"semi"                 : [
+			"error",
+			"always"
+		],
+		"brace-style"          : [
+			"error",
+			"1tbs"
+		]
+	}
+}
