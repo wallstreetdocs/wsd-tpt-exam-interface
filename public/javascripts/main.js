@@ -79,6 +79,7 @@
 			WSD.certificationsIF.init( {
 				endpoint,
 				authToken,
+				animateQuestions: true,
 				renderInto : '#examContainer'
 			})
 		},

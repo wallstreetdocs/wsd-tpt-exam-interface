@@ -10,6 +10,7 @@
 	line-height: 48px;
 	padding: 0 3.5rem;
 	vertical-align: middle;
+	min-width: 200px;
 }
 
 .wsd-answer-choice {
@@ -45,6 +46,10 @@
 	font-size: 12px;
 }
 
+#wsd-begin-test-button {
+	margin-top: 12px;
+}
+
 .wsd-btn-primary {
 	background-color: #002555;
 	color: white;
@@ -65,7 +70,14 @@
 }
 
 .wsd-exam-container {
+	cursor: pointer;
+	padding: 12px;
+	transition: all 0.75s;
 	width: 33%;
+}
+
+.wsd-exam-container:hover {
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
 }
 
 
@@ -85,6 +97,24 @@
 .wsd-exam-title {
 	font-size: 24px;
 	margin-bottom: 16px;
+}
+
+.wsd-grid-button-container {
+	margin-top:16px;
+}
+
+.wsd-grid-button {
+	background: #f4f4f4;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	cursor: pointer;
+	margin-right: 8px;
+	width: 48px;
+	height: auto;
+}
+
+.wsd-button-correct {
+	background: #11b683;
 }
 
 .wsd-incorrect-answer {
@@ -114,6 +144,15 @@ a.wsd-begin-test  {
 	margin-top: 16px;
 }
 
+.wsd-question-button-container {
+	height: 64px;
+}
+
+.wsd-question-container {
+	position: relative;
+	transition: all 0.5s;
+}
+
 .wsd-question-next-button {
 	float: right;
 }
@@ -124,4 +163,15 @@ a.wsd-begin-test  {
 
 .wsd-review-button {
 	float: left;
+}
+
+.wsd-video-container {
+	margin: 0 auto;
+	text-align: center;
+	width: 100%;
+}
+
+#ytplayer {
+	display: block;
+	margin: 0 auto;
 }

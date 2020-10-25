@@ -5,26 +5,26 @@ if ( !window.WSD ) {
 }
 
 window.WSD.certificationsIF = (function () {
-	let _allExams = null;
-	const _options = {};
-	const _answersEndpoint = 'external/exams/answers/';
+	var _allExams = null;
+	var _options = {};
+	var _answersEndpoint = 'external/exams/answers/';
 	var _buttonCorrectClass = 'wsd-button-correct';
 	var _buttonIncorrectClass = 'wsd-button-incorrect';
-	let _examAnsweredCorrectly = 0;
+	var _examAnsweredCorrectly = 0;
 	var _examTitle;
-	const _examsEndpoint = 'external/exams';
-	const _directionNext = 'next';
-	const _directionPrev = 'prev';
-	var _gridButtonContainer;
-	const _inputAnswerName = 'wsd-answer';
-	let _isReview = false;  // flag to control review mode
-	const _retakeButton = 'wsd-retake-button';
-	const _reviewButton = 'wsd-review-button';
+	var _examsEndpoint = 'external/exams';
+	var _directionNext = 'next';
+	var _directionPrev = 'prev';
+	var _gridButtonContainer = 'wsd-grid-button-container';
+	var _inputAnswerName = 'wsd-answer';
+	var _isReview = false;  // flag to control review mode
+	var _retakeButton = 'wsd-retake-button';
+	var _reviewButton = 'wsd-review-button';
 	var _serverAnswers;
-	const _sessionStorageKey = 'wsd-answers';
-	let _thisExam = null;   // current exam being taken. (/level-1...)
+	var _sessionStorageKey = 'wsd-answers';
+	var _thisExam = null;   // current exam being taken. (/level-1...)
 	var _thisLevel;    // the level that is being taken
-	let _userAnswers;
+	var _userAnswers;
 
 	/**
 	 * Helper to return hostname
@@ -32,8 +32,8 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {string}
 	 * @private
 	 */
-	const _getHostnameUrl = function () {
-		const hostnameURL = new URL ( _options.endpoint );
+	var _getHostnameUrl = function () {
+		var hostnameURL = new URL ( _options.endpoint );
 		return hostnameURL.protocol + '//' + hostnameURL.hostname + ':' + hostnameURL.port + '/';
 	}
 
@@ -44,7 +44,7 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {Promise<unknown>}
 	 * @private
 	 */
-	const _getAnswersFromServer = function ( level ) {
+	var _getAnswersFromServer = function ( level ) {
 		return _xhrGet ( _getHostnameUrl () + _answersEndpoint + level );
 	};
 
@@ -54,9 +54,9 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {*[]}
 	 * @private
 	 */
-	const _getAnswersFromSession = function () {
-		let storageObj = sessionStorage.getItem ( _sessionStorageKey );
-		let allAnswers;
+	var _getAnswersFromSession = function () {
+		var storageObj = sessionStorage.getItem ( _sessionStorageKey );
+		var allAnswers;
 		if ( storageObj ) {
 			allAnswers = JSON.parse ( storageObj );
 		} else {
@@ -73,10 +73,10 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {[null, null]}
 	 * @private
 	 */
-	const _getAnswerToQuestion = function ( answers, id ) {
-		let rightAnswer = null;
-		let answerInfo = null;
-		for ( const answer of answers ) {
+	var _getAnswerToQuestion = function ( answers, id ) {
+		var rightAnswer = null;
+		var answerInfo = null;
+		for ( var answer of answers ) {
 			if ( answer.id === id ) {
 				rightAnswer = answer.answer;
 				answerInfo = answer.answer_info;
@@ -93,14 +93,22 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {*}
 	 * @private
 	 */
-	const _getQuestionsForExam = function ( thisLevel ) {
+	var _getQuestionsForExam = function ( thisLevel ) {
 		return _allExams.certificationQuestions.filter ( ( entry ) => {
 			return entry.level === thisLevel;
 		} );
 	};
 
-	const _isCorrectAnswer = function( sequence, answerIndex ) {
-		let serverAnswer = _serverAnswers[ sequence ];
+	/**
+	 * Given a question sequence and an answer index.. is it correct?
+	 *
+	 * @param sequence
+	 * @param answerIndex
+	 * @returns {string}
+	 * @private
+	 */
+	var _isCorrectAnswer = function( sequence, answerIndex ) {
+		var serverAnswer = _serverAnswers[ sequence ];
 		if ( serverAnswer.answer === answerIndex ) {
 			// return.. this is the correct answer   don't flag
 			return 'wsd-answer-info'
@@ -113,6 +121,24 @@ window.WSD.certificationsIF = (function () {
 		return '';
 	};
 
+	var _playVideo = function ( url ) {
+		var output = '<div class="wsd-video-container">';
+		var container = document.querySelector( _options.renderInto );
+		output += '<iframe id="ytplayer" type="text/html" '
+			+ 'width="' + ( container.clientWidth * .8 ) + '" '
+			+ 'height="' + ( container.clientWidth * .8 / 1.77 ) + '" '   // keep 16:9 ratio
+			+ 'src="' + url + '" '
+			+ 'frameborder="0"></iframe>';
+		output += '<button class="btn wsd-btn-primary" id="wsd-begin-test-button">Begin test</button>';
+		output += '</div>';
+		document.querySelector ( _options.renderInto ).innerHTML = output;
+
+		// hook into begin button
+		document.querySelector( '#wsd-begin-test-button').addEventListener( 'click', function( event ) {
+			_showExam ( _thisExam );
+		});
+	}
+
 	/**
 	 * Called when finished...
 	 *
@@ -122,15 +148,15 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	const _processAnswers = async function ( level ) {
+	var _processAnswers = async function ( level ) {
 		_serverAnswers = await _getAnswersFromServer ( level );
 		// match questions to answer via their id.
 		_userAnswers = _getAnswersFromSession ();
 		_examAnsweredCorrectly = 0;
-		for ( let i = 0; i < _userAnswers.length; i++ ) {
-			const answer = _userAnswers[ i ];
+		for ( var i = 0; i < _userAnswers.length; i++ ) {
+			var answer = _userAnswers[ i ];
 			// find this id in server answers
-			const [rightAnswer, answerInfo] = _getAnswerToQuestion ( _serverAnswers, answer.id );
+			var [rightAnswer, answerInfo] = _getAnswerToQuestion ( _serverAnswers, answer.id );
 			answer.answerInfo = answerInfo;
 			answer.isCorrect = rightAnswer === answer.answer;
 			if ( answer.isCorrect ) {
@@ -150,15 +176,16 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	const _renderExamList = async function () {
-		let output = '<div class="wsd-page">';
+	var _renderExamList = async function () {
+		var output = '<div class="wsd-page">';
+		var index = 0;
 		_allExams.certificationLevels.forEach ( ( level ) => {
 			// if no video, don't show!
 			if ( !level.video ) {
 				return;
 			}
 
-			let difficulty = 'Hard'; // default
+			var difficulty = 'Hard'; // default
 			if ( level.name === 'Level 1' ) {
 				difficulty = 'Easy'
 			}
@@ -166,31 +193,38 @@ window.WSD.certificationsIF = (function () {
 				difficulty = 'Medium'
 			}
 
-			output += '<div class="wsd-exam-container">';
+			output += '<div class="wsd-exam-container" id="wec-' + index + '">';
 			output += '<div class="wsd-exam-title">' + level.body.display_name + '</div>';
 			output += '<div class="wsd-exam-image"><img src="' + level.image + '" /></div>';
 			output += '<div class="wsd-exam-video-duration">Duration: ' + level.video_duration + ' (mins)</div>';
 			output += '<div class="wsd-exam-description">' + level.description + '</div>';
 			output += '<div classs="wsd-exam-difficulty">Difficulty: ' + difficulty + '</div>';
 			output += '<div><a class="wsd-begin-test" href="' + level.body.url + '">Begin test &rarr;</a></div>';
+			output += '<input type="hidden" value="' + level.video + '" />';
 			output += '</div>';
+			index++;
 		} );
 
 		output += '</div>';
 
 		document.querySelector ( _options.renderInto ).innerHTML = output;
-		const beginTests = document.querySelectorAll ( '.wsd-begin-test' );
+		//var beginTests = document.querySelectorAll ( '.wsd-begin-test' );
+		document.querySelector ( '.wsd-exam-container' ).addEventListener( 'click', function( event ) {
+			var href = document.querySelector( '.wsd-begin-test');
+			var exam = new URL ( href );
+			_thisExam = exam.pathname;
 
-		// Hook into click event on each begin.retake test href.
-		Array.from ( beginTests ).forEach ( link => {
-			link.addEventListener ( 'click', ( event ) => {
-				event.preventDefault ();
-				const exam = new URL ( event.target.href );
-				_thisExam = exam.pathname;
-				_showExam ( _thisExam );
-			} );
-		} );
+			// now find video url.  100% to have one otherwise the exam
+			// does not show
+			var input = document.querySelector( '#' + this.id + ' input' );
 
+			if ( !input ) {
+				throw new Error( 'Cannot find video URL');
+			}
+
+			_playVideo( input.value );
+
+		});
 	};
 
 	/**
@@ -200,8 +234,8 @@ window.WSD.certificationsIF = (function () {
 	 * @param sequence
 	 * @private
 	 */
-	const _saveAnswer = function ( answer, sequence, id ) {
-		const allAnswers = _getAnswersFromSession ();
+	var _saveAnswer = function ( answer, sequence, id ) {
+		var allAnswers = _getAnswersFromSession ();
 		allAnswers[ sequence ] = { answer, id };
 		sessionStorage.setItem ( _sessionStorageKey, JSON.stringify ( allAnswers ) );
 	};
@@ -210,26 +244,27 @@ window.WSD.certificationsIF = (function () {
 	 * When we are in review mode, show a grid of answers that are marked
 	 * correct, or incorrect.
 	 */
-	const _showAnswerGrid = function ( ) {
+	var _showAnswerGrid = function ( ) {
 		var output = '<div class="' + _gridButtonContainer + '">';
+		output += '<hr />';
 		for ( var i = 0; i < _userAnswers.length; i++ ) {
 			console.log( i, _userAnswers[ i ].isCorrect );
 			var buttonText = _userAnswers[ i ].isCorrect  ? '&check;' : '&#x2A09;';
-			var buttonClass = _userAnswers[ i ].isCorrect ? _buttonCorrectClass : _buttonIncorrectClass;
-			output += '<span class="wsd-grid-button '
+			var buttonClass = _userAnswers[ i ].isCorrect ? _buttonCorrectClass : '';
+			output += '<button class="wsd-grid-button '
 				+ buttonClass
 				+ '">'
 				+ (i+1)
-				+ '</span>'
-				+ buttonText;
+				+ '&nbsp'
+				+ '</button>';
 		}
 		output += '</div>';
 		return output;
 	};
 
-	const _showAnswerGridHook = function() {
+	var _showAnswerGridHook = function() {
 		// hook into button so we can go directly to that question.
-		const gridButtons = document.querySelectorAll ( '.wsd-grid-button' );
+		var gridButtons = document.querySelectorAll ( '.wsd-grid-button' );
 		console.log( gridButtons );
 		// Hook into click event on each button
 		Array.from ( gridButtons ).forEach ( link => {
@@ -252,12 +287,12 @@ window.WSD.certificationsIF = (function () {
 	 * @param exam
 	 * @private
 	 */
-	const _showExam = function ( exam ) {
+	var _showExam = function ( exam ) {
 		// find exam.
-		let thisExam;
+		var thisExam;
 		exam = exam.replace ( '/', '' );
 
-		for ( const item of _allExams.certificationLevels ) {
+		for ( var item of _allExams.certificationLevels ) {
 			if ( item.body.url === exam ) {
 				thisExam = item;
 				break;
@@ -272,7 +307,7 @@ window.WSD.certificationsIF = (function () {
 		// this is why we have a naming convention of Level1,2,3,4,5 etc...
 		_thisLevel = parseInt ( exam.toLowerCase ().replace ( 'level-', '' ) );
 		// now get questions from certification questions...
-		const questions = _getQuestionsForExam ( _thisLevel );
+		var questions = _getQuestionsForExam ( _thisLevel );
 		// now show questions.
 		_showQuestions ( questions, _thisLevel );
 	};
@@ -290,15 +325,15 @@ window.WSD.certificationsIF = (function () {
 	 * @param question
 	 * @private
 	 */
-	const _showQuestion = function ( question, sequence, questionCount ) {
+	var _showQuestion = function ( question, sequence, questionCount ) {
 		return new Promise ( ( resolve, reject ) => {
-			let output = '<div class="wsd-question-container">';
+			var output = '<div class="wsd-question-container">';
 
 			output += '<div class="wsd-exam-title">' + _examTitle +'</div>';
 			output += '<div class="wsd-question-header">Q'+ (sequence +1) + '.&nbsp;' + question.question + '</div>';
 			output += '<div class="wsd-answer-container">';
 
-			for ( let answerIndex = 0; answerIndex < question.options.length; answerIndex++ ) {
+			for ( var answerIndex = 0; answerIndex < question.options.length; answerIndex++ ) {
 				var isCorrectAnswerClass = '';
 				if ( _isReview ) {
 					isCorrectAnswerClass = _isCorrectAnswer( sequence, answerIndex );
@@ -315,20 +350,21 @@ window.WSD.certificationsIF = (function () {
 			output += '</div>'; // end answer container
 
 			// Buttons
-			const prevDisabled = sequence === 0 ? 'disabled' : '';
-			const nextText = (sequence + 1) === questionCount ? 'Finish' : 'Next';
+			var prevDisabled = sequence === 0 ? 'disabled' : '';
+			var nextText = (sequence + 1) === questionCount ? 'Finish' : 'Next';
 
 			output += '<div class="wsd-question-button-container">';
 			output += '<button type="button" class="btn wsd-btn-secondary wsd-question-prev-button" ' + prevDisabled + ' >Previous question</button>';
 			output += '<button type="button" class="btn wsd-btn-primary wsd-question-next-button">' + nextText + '</button>';
 			output += '</div>'; // end button container
 
-			output += '</div>'; // end question container
 
 			if ( _isReview ) {
 				output += _showAnswerGrid();
 				console.log(output );
 			}
+
+			output += '</div>'; // end question container
 
 			// into DOM
 			document.querySelector ( _options.renderInto ).innerHTML = output;
@@ -339,10 +375,10 @@ window.WSD.certificationsIF = (function () {
 			}
 
 			// If we have an answer in session storage, set it
-			const allAnswers = _getAnswersFromSession ();
+			var allAnswers = _getAnswersFromSession ();
 			if ( allAnswers[ sequence ] ) {
 				// have an answer.. set value
-				const allInput = document.getElementsByName ( _inputAnswerName );
+				var allInput = document.getElementsByName ( _inputAnswerName );
 				allInput[ allAnswers[ sequence ].answer ].setAttribute ( 'checked', true );
 			}
 
@@ -350,7 +386,7 @@ window.WSD.certificationsIF = (function () {
 			document.querySelector ( '.wsd-question-next-button' ).addEventListener ( 'click', ( event ) => {
 				event.preventDefault ();
 				if ( document.querySelector ( 'input[name="wsd-answer"]:checked' ) ) {
-					const answer = document.querySelector ( 'input[name="wsd-answer"]:checked' ).value;
+					var answer = document.querySelector ( 'input[name="wsd-answer"]:checked' ).value;
 					resolve ( { answer, direction: _directionNext } );
 				}
 			} );
@@ -359,11 +395,19 @@ window.WSD.certificationsIF = (function () {
 			document.querySelector ( '.wsd-question-prev-button' ).addEventListener ( 'click', ( event ) => {
 				event.preventDefault ();
 				if ( document.querySelector ( 'input[name="wsd-answer"]:checked' ) ) {
-					const answer = document.querySelector ( 'input[name="wsd-answer"]:checked' ).value;
+					var answer = document.querySelector ( 'input[name="wsd-answer"]:checked' ).value;
 					return resolve ( { answer, direction: _directionPrev } );
 				}
 				resolve ( { answer: null, direction: _directionPrev } );
 			} );
+
+			if ( _options.animateQuestions ) {
+				document.querySelector ( '.wsd-question-container' ).style.left = '-2000px';
+				setTimeout ( function () {
+					document.querySelector ( '.wsd-question-container' ).style.left = '0px';
+
+				}, 50 );
+			}
 
 		} );
 	};
@@ -375,10 +419,10 @@ window.WSD.certificationsIF = (function () {
 	 * @param answerIndex
 	 * @private
 	 */
-	const _showQuestionInfo = function( sequence, answerIndex ) {
+	var _showQuestionInfo = function( sequence, answerIndex ) {
 		var question = _getQuestionsForExam( _thisLevel )[ sequence ];
 		// get associated server answer.
-		let serverAnswer = _serverAnswers[ sequence ];
+		var serverAnswer = _serverAnswers[ sequence ];
 		if ( serverAnswer.answer === answerIndex ) {
 			// show info!!!
 			return '<div class="wsd-answer-info">' + serverAnswer.answer_info + '</div>';
@@ -388,7 +432,7 @@ window.WSD.certificationsIF = (function () {
 		if ( allAnswers.answer === answerIndex ) {
 			return '<div class="wsd-incorrect-answer"></div>';
 		}
-		debugger;
+
 		return '';
 	};
 
@@ -401,14 +445,14 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	const _showQuestions = async function ( questions, level, startAt  ) {
+	var _showQuestions = async function ( questions, level, startAt  ) {
 		questions.length = 3;
-		let sequence = 0;
+		var sequence = 0;
 		if ( startAt ) {
 			sequence = startAt;
 		}
 		while ( true ) { // use while since this can be infinite :-)
-			const response = await _showQuestion ( questions[ sequence ], sequence, questions.length );
+			var response = await _showQuestion ( questions[ sequence ], sequence, questions.length );
 
 			if ( response.answer !== null ) {
 				_saveAnswer ( parseInt ( response.answer ), sequence, questions[ sequence ].id );
@@ -433,9 +477,9 @@ window.WSD.certificationsIF = (function () {
 	 * @param answeredCorrectly
 	 * @private
 	 */
-	const _showResult = function ( results, answeredCorrectly ) {
-		const percent = Math.round ( _examAnsweredCorrectly / _userAnswers.length * 100 );
-		let output = '<div class="wsd-result-container">';
+	var _showResult = function ( results, answeredCorrectly ) {
+		var percent = Math.round ( _examAnsweredCorrectly / _userAnswers.length * 100 );
+		var output = '<div class="wsd-result-container">';
 		output += '<div class="wsd-result-header">';
 		output += '<div class="wsd-result-percentage">' + percent + '%' + '</div>';
 
@@ -466,7 +510,7 @@ window.WSD.certificationsIF = (function () {
 		} );
 	};
 
-	const _xhrGet = function ( url ) {
+	var _xhrGet = function ( url ) {
 		return new Promise ( ( resolve, reject ) => {
 			var xhttp = new XMLHttpRequest ();
 
@@ -487,7 +531,7 @@ window.WSD.certificationsIF = (function () {
 
 		viewAllExams: async function () {
 			// get all exams
-			const exams = await _xhrGet ( _options.endpoint + _examsEndpoint );
+			var exams = await _xhrGet ( _options.endpoint + _examsEndpoint );
 			// render into a dom node
 			_allExams = exams;
 			_renderExamList ();
@@ -497,12 +541,22 @@ window.WSD.certificationsIF = (function () {
 		 * Initialise method.
 		 *
 		 * ===================================================================
-		 * options contains:
 		 *
+		 * Options:
+		 *
+		 * ==== Mandatory ===
 		 * authToken - Mandatory - Token to be used
 		 * endpoint - Mandatory - TPT APP Server endpoint (hostname only)
-		 * renderInto - Options - Dom mode where exams will be shown.
 		 *
+		 * === Optional ===
+		 * animateQuestions - Optional -- Do questions animate? (true | false
+		 * iconSuccess - Optional - Icon for exam success
+		 * iconFailure - Optional - Icon for exam failure
+		 * iconSuccessText - Optional - Text when exam is passed
+		 * iconSuccessFail - optional - Text when exam has failed
+		 * renderInto - Optionals - Dom mode where exams will be shown.
+		 *
+		 * ===================================================================
 		 *
 		 * Callbacks - All optional
 		 * ex: options.onAnswer=function
@@ -525,7 +579,8 @@ window.WSD.certificationsIF = (function () {
 		 *
 		 * onReview - User wants to review the answers
 		 * onRetake - User wants to retake the exam
-		 * event.
+		 *
+		 * preRender - passes generated HTML to callback.  Return modified HTML
 		 *
 		 * ===================================================================
 		 *
@@ -533,9 +588,9 @@ window.WSD.certificationsIF = (function () {
 		 */
 		init: function ( options ) {
 			console.log ( options );
-			_options.authToken = options.authToken;
+			_options = options;
+			// ensure endpoint endswith '/'
 			_options.endpoint = options.endpoint.endsWith ( '/' ) ? options.endpoint : options.endpoint + '/';
-			_options.renderInto = options.renderInto;
 
 		}
 	}
