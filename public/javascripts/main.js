@@ -28,7 +28,7 @@
 			}
 			event.stopPropagation();
 			WSD.Main._setOptions();
-			await WSD.certificationsIF.viewAllExams();
+			WSD.certificationsIF.viewAllExams();
 
 		},
 

@@ -115,6 +115,10 @@ window.WSD.certificationsIF = (function () {
 		return [rightAnswer, answerInfo];
 	};
 
+	var _finish = function () {
+
+	};
+
 	/**
 	 * Given a level, return all question associated with it.
 	 *
@@ -179,37 +183,40 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	var _processAnswers = async function ( level ) {
-		_serverAnswers = await _getAnswersFromServer ( level );
-		// match questions to answer via their id.
-		_userAnswers = _getAnswersFromSession ();
+	var _processAnswers = function ( level ) {
+		_getAnswersFromServer ( level )
+			.then ( function ( response ) {
+				_serverAnswers = response;
+				// match questions to answer via their id.
+				_userAnswers = _getAnswersFromSession ();
 
-		_emitEvent ( 'onProcessAnswers',
-			{
-				servernswers: _serverAnswers,
-				userAnswer  : _userAnswers
-			} );
+				_emitEvent ( 'onProcessAnswers',
+					{
+						servernswers: _serverAnswers,
+						userAnswer  : _userAnswers
+					} );
 
-		_examAnsweredCorrectly = 0;
+				_examAnsweredCorrectly = 0;
 
-		for ( var i = 0; i < _userAnswers.length; i++ ) {
-			var answer = _userAnswers[ i ];
-			// find this id in server answers
-			var [rightAnswer, answerInfo] = _getAnswerToQuestion ( _serverAnswers, answer.id );
-			answer.answerInfo = answerInfo;
-			answer.isCorrect = rightAnswer === answer.answer;
-			if ( answer.isCorrect ) {
-				_examAnsweredCorrectly++;
-			}
-		}
+				for ( var i = 0; i < _userAnswers.length; i++ ) {
+					var answer = _userAnswers[ i ];
+					// find this id in server answers
+					var [rightAnswer, answerInfo] = _getAnswerToQuestion ( _serverAnswers, answer.id );
+					answer.answerInfo = answerInfo;
+					answer.isCorrect = rightAnswer === answer.answer;
+					if ( answer.isCorrect ) {
+						_examAnsweredCorrectly++;
+					}
+				}
 
-		_percent = Math.round ( _examAnsweredCorrectly / _userAnswers.length * 100 );
-		_hasPassed = false;
-		if ( _percent >= _options.passMark ) {
-			_hasPassed = true;
-		}
-		_sendResult ();
-		_showResult ();
+				_percent = Math.round ( _examAnsweredCorrectly / _userAnswers.length * 100 );
+				_hasPassed = false;
+				if ( _percent >= _options.passMark ) {
+					_hasPassed = true;
+				}
+				_sendResult ();
+				_showResult ();
+			} ); // end then
 	};
 
 	/**
@@ -257,20 +264,16 @@ window.WSD.certificationsIF = (function () {
 		document.querySelector ( _options.renderInto ).innerHTML = output;
 
 		var allTests = document.querySelectorAll ( '.wsd-begin-test' );
-		allTests.forEach( function( test ) {
-			test.addEventListener( 'click', function( event ) {
-				event.preventDefault();
-				alert( 'ok?');
-			});
-		})
+		allTests.forEach ( function ( test ) {
+			test.addEventListener ( 'click', function ( event ) {
+				event.preventDefault ();
+			} );
+		} )
 
 		var allContainers = document.querySelectorAll ( '.wsd-exam-container' );
-		allContainers.forEach( function( container ) {
+		allContainers.forEach ( function ( container ) {
 			container.addEventListener ( 'click', function ( event ) {
-debugger;
 				var href = document.querySelector ( '#' + this.id + ' .wsd-begin-test' );
-				alert( href);
-				debugger;
 				var exam = new URL ( href );
 				_thisExam = exam.pathname;
 
@@ -285,7 +288,7 @@ debugger;
 				_playVideo ( input.value );
 
 			} );
-		});
+		} );
 
 	};
 
@@ -359,11 +362,17 @@ debugger;
 		return output;
 	};
 
+	/**
+	 * Show the buttons that indicate right/wrong answers at the bottom
+	 * of the screen...
+	 *
+	 * @private
+	 */
 	var _showAnswerGridHook = function () {
 		// hook into button so we can go directly to that question.
 		var gridButtons = document.querySelectorAll ( '.wsd-grid-button' );
 		// Hook into click event on each button
-		Array.from ( gridButtons ).forEach ( link => {
+		gridButtons.forEach ( link => {
 			link.addEventListener ( 'click', ( event ) => {
 				event.preventDefault ();
 				var sequence = parseInt ( event.target.innerHTML ) - 1;
@@ -371,7 +380,6 @@ debugger;
 				_showQuestions ( questions, _thisLevel, sequence );
 			} );
 		} );
-
 	}
 
 	/**
@@ -435,7 +443,7 @@ debugger;
 		return new Promise ( ( resolve, reject ) => {
 
 			_emitEvent ( 'onShowQuestion',
-				{sequence} );
+				{ sequence } );
 
 			var disabled = _isReview ? 'disabled' : '';
 
@@ -556,38 +564,58 @@ debugger;
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	var _showQuestions = async function ( questions, level, startAt ) {
+	var _showQuestions = function ( questions, level, startAt ) {
 		questions.length = 3;
 		var sequence = 0;
 		if ( startAt ) {
 			sequence = startAt;
 		}
-		while ( true ) { // use while since this can be infinite :-)
-			var response = await _showQuestion ( questions[ sequence ], sequence, questions.length );
 
-			_emitEvent ( 'onAnswer',
-				{
-					response,
-					sequence,
+		/**
+		 * Recursive function to deal with iterating though the questions
+		 * and waiting for each one to complete.
+		 *
+		 * renderQuestion is called below to sytart -- and also called within itself.
+		 *
+		 * Since renderQuestions returns a promise, the internal promise will
+		 * @returns {Promise<unknown>}
+		 */
+		var renderQuestion = function() {
+			return new Promise(function( resolve, reject) {
+				_showQuestion ( questions[ sequence ], sequence, questions.length ).then ( function ( response ) {
+					_emitEvent ( 'onAnswer',
+						{
+							response,
+							sequence,
+						} );
+					if ( response.answer !== null ) {
+						_saveAnswer ( parseInt ( response.answer ), sequence, questions[ sequence ].id );
+					}
+					if ( response.direction === _directionNext ) {
+						sequence++;
+						if ( sequence === questions.length ) {
+							return resolve(); // resolve this promise
+						}
+					} else {
+						sequence--;
+					}
+					renderQuestion().then(function() {
+						console.log( '9');
+						resolve(); // resolve promise
+					})
+
 				} );
-
-			if ( response.answer !== null ) {
-				_saveAnswer ( parseInt ( response.answer ), sequence, questions[ sequence ].id );
-			}
-			if ( response.direction === _directionNext ) {
-				sequence++;
-				if ( sequence === questions.length ) {
-					break;
-				}
-			} else {
-				sequence--;
-			}
+			});
 		}
 
-		// we're done..
-		_emitEvent ( 'onFinish', {} );
+		// Start question loop
+		renderQuestion()
+			.then(function() {
+			// we're done..
+			_emitEvent ( 'onFinish', {} );
+			_processAnswers ( level );
+		})
 
-		_processAnswers ( level );
 	}
 
 	/**
@@ -678,12 +706,15 @@ debugger;
 	// Public methods
 	var certifications = {
 
-		viewAllExams: async function () {
+		viewAllExams: function () {
 			// get all exams
-			var exams = await _xhr ( XHR_GET, _options.endpoint + _examsEndpoint );
-			// render into a dom node
-			_allExams = exams;
-			_renderExamList ();
+			_xhr ( XHR_GET, _options.endpoint + _examsEndpoint )
+				.then ( function ( exams ) {
+					console.log ( exams );
+					// render into a dom node
+					_allExams = exams;
+					_renderExamList ();
+				} );
 		},
 
 		/**
