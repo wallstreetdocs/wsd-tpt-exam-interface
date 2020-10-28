@@ -20,7 +20,7 @@
 			ShowConsole: $ ( '#showConsole' ),
 		},
 
-		_getAllExams : async function ( event ) {
+		_getAllExams : function ( event ) {
 
 			if ( WSD.Main.Dom.AuthToken.val().trim() === '' ) {
 				alert( 'Please supply an authentication token.');

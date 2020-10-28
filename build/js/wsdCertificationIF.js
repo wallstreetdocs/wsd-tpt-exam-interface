@@ -1,7 +1,7 @@
 if ( !window.WSD ) {
 	window.WSD = {
 		debug: true,
-	}
+	};
 }
 
 /**
@@ -14,7 +14,6 @@ window.WSD.certificationsIF = (function () {
 	var _options = {};
 	var _answersEndpoint = 'external/exams/answers/';
 	var _buttonCorrectClass = 'wsd-button-correct';
-	var _buttonIncorrectClass = 'wsd-button-incorrect';
 	var _examAnsweredCorrectly = 0;
 	var _examTitle;
 	var _examsEndpoint = 'external/exams';
@@ -105,14 +104,18 @@ window.WSD.certificationsIF = (function () {
 	var _getAnswerToQuestion = function ( answers, id ) {
 		var rightAnswer = null;
 		var answerInfo = null;
-		for ( var answer of answers ) {
+		for ( var i = 0; i < answers.length; i++ ) {
+			var answer = answers [ i ];
 			if ( answer.id === id ) {
 				rightAnswer = answer.answer;
 				answerInfo = answer.answer_info;
 				break;
 			}
 		}
-		return [rightAnswer, answerInfo];
+		return {
+			rightAnswer: rightAnswer,
+			answerInfo: answerInfo
+		}
 	};
 
 	var _finish = function () {
@@ -127,7 +130,7 @@ window.WSD.certificationsIF = (function () {
 	 * @private
 	 */
 	var _getQuestionsForExam = function ( thisLevel ) {
-		return _allExams.certificationQuestions.filter ( ( entry ) => {
+		return _allExams.certificationQuestions.filter ( function ( entry ) {
 			return entry.level === thisLevel;
 		} );
 	};
@@ -170,6 +173,7 @@ window.WSD.certificationsIF = (function () {
 
 		// hook into begin button
 		document.querySelector ( '#wsd-begin-test-button' ).addEventListener ( 'click', function ( event ) {
+			debugger;
 			_showExam ( _thisExam );
 		} );
 	}
@@ -201,9 +205,9 @@ window.WSD.certificationsIF = (function () {
 				for ( var i = 0; i < _userAnswers.length; i++ ) {
 					var answer = _userAnswers[ i ];
 					// find this id in server answers
-					var [rightAnswer, answerInfo] = _getAnswerToQuestion ( _serverAnswers, answer.id );
-					answer.answerInfo = answerInfo;
-					answer.isCorrect = rightAnswer === answer.answer;
+					var obj = _getAnswerToQuestion ( _serverAnswers, answer.id );
+					answer.answerInfo = obj.answerInfo;
+					answer.isCorrect = obj.rightAnswer === answer.answer;
 					if ( answer.isCorrect ) {
 						_examAnsweredCorrectly++;
 					}
@@ -229,10 +233,10 @@ window.WSD.certificationsIF = (function () {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	var _renderExamList = async function () {
+	var _renderExamList = function () {
 		var output = '<div class="wsd-page">';
 		var index = 0;
-		_allExams.certificationLevels.forEach ( ( level ) => {
+		_allExams.certificationLevels.forEach ( function ( level ) {
 			// if no video, don't show!
 			if ( !level.video ) {
 				return;
@@ -264,14 +268,16 @@ window.WSD.certificationsIF = (function () {
 		document.querySelector ( _options.renderInto ).innerHTML = output;
 
 		var allTests = document.querySelectorAll ( '.wsd-begin-test' );
-		allTests.forEach ( function ( test ) {
+		for ( var i = 0; i < allTests.length; i++ ) {
+			var test = allTests[ i ];
 			test.addEventListener ( 'click', function ( event ) {
 				event.preventDefault ();
 			} );
-		} )
+		}
 
 		var allContainers = document.querySelectorAll ( '.wsd-exam-container' );
-		allContainers.forEach ( function ( container ) {
+		for ( var i = 0; i < allContainers.length; i++ ) {
+			var container = allContainers[ i ];
 			container.addEventListener ( 'click', function ( event ) {
 				var href = document.querySelector ( '#' + this.id + ' .wsd-begin-test' );
 				var exam = new URL ( href );
@@ -288,7 +294,7 @@ window.WSD.certificationsIF = (function () {
 				_playVideo ( input.value );
 
 			} );
-		} );
+		}
 
 	};
 
@@ -302,8 +308,8 @@ window.WSD.certificationsIF = (function () {
 	var _renderHook = function ( name, html ) {
 		if ( _options.renderHook ) {
 			return _options.renderHook ( {
-				name,
-				html
+				name: name,
+				html: html
 			} );
 		}
 		return html
@@ -318,7 +324,7 @@ window.WSD.certificationsIF = (function () {
 	 */
 	var _saveAnswer = function ( answer, sequence, id ) {
 		var allAnswers = _getAnswersFromSession ();
-		allAnswers[ sequence ] = { answer, id };
+		allAnswers[ sequence ] = { answer: answer, id: id };
 		sessionStorage.setItem ( _sessionStorageKey, JSON.stringify ( allAnswers ) );
 	};
 
@@ -332,12 +338,8 @@ window.WSD.certificationsIF = (function () {
 			passingScore  : _options.passMark,
 		}
 
-		_xhr ( XHR_POST, _options.endpoint + _resultsEndpoint, results )
-			.then ( (function ( response ) {
-					debugger;
-					console.log ( response );
-				})
-			);
+		return _xhr ( XHR_POST, _options.endpoint + _resultsEndpoint, results );
+
 	};
 
 	/**
@@ -372,14 +374,15 @@ window.WSD.certificationsIF = (function () {
 		// hook into button so we can go directly to that question.
 		var gridButtons = document.querySelectorAll ( '.wsd-grid-button' );
 		// Hook into click event on each button
-		gridButtons.forEach ( link => {
-			link.addEventListener ( 'click', ( event ) => {
+		for ( var i = 0; i < gridButtons.length; i++ ) {
+			var link = gridButtons[ i ];
+			link.addEventListener ( 'click', function ( event ) {
 				event.preventDefault ();
 				var sequence = parseInt ( event.target.innerHTML ) - 1;
 				var questions = _getQuestionsForExam ( _thisLevel );
 				_showQuestions ( questions, _thisLevel, sequence );
 			} );
-		} );
+		}
 	}
 
 	/**
@@ -396,7 +399,8 @@ window.WSD.certificationsIF = (function () {
 		var thisExam;
 		exam = exam.replace ( '/', '' );
 
-		for ( var item of _allExams.certificationLevels ) {
+		for ( var i = 0; i < _allExams.certificationLevels.length; i++ ) {
+			var item = _allExams.certificationLevels[ i ];
 			if ( item.body.url === exam ) {
 				thisExam = item;
 				break;
@@ -440,10 +444,10 @@ window.WSD.certificationsIF = (function () {
 	 * @private
 	 */
 	var _showQuestion = function ( question, sequence, questionCount ) {
-		return new Promise ( ( resolve, reject ) => {
+		return new Promise ( function ( resolve, reject ) {
 
 			_emitEvent ( 'onShowQuestion',
-				{ sequence } );
+				{ sequence: sequence } );
 
 			var disabled = _isReview ? 'disabled' : '';
 
@@ -502,20 +506,20 @@ window.WSD.certificationsIF = (function () {
 			}
 
 			// now, hook into the prev, next buttons.
-			document.querySelector ( '.wsd-question-next-button' ).addEventListener ( 'click', ( event ) => {
+			document.querySelector ( '.wsd-question-next-button' ).addEventListener ( 'click', function ( event ) {
 				event.preventDefault ();
 				if ( document.querySelector ( 'input[name="wsd-answer"]:checked' ) ) {
 					var answer = document.querySelector ( 'input[name="wsd-answer"]:checked' ).value;
-					resolve ( { answer, direction: _directionNext } );
+					resolve ( { answer: answer, direction: _directionNext } );
 				}
 			} );
 
 			// Note: can resolve without an answer since we're going back
-			document.querySelector ( '.wsd-question-prev-button' ).addEventListener ( 'click', ( event ) => {
+			document.querySelector ( '.wsd-question-prev-button' ).addEventListener ( 'click', function ( event ) {
 				event.preventDefault ();
 				if ( document.querySelector ( 'input[name="wsd-answer"]:checked' ) ) {
 					var answer = document.querySelector ( 'input[name="wsd-answer"]:checked' ).value;
-					return resolve ( { answer, direction: _directionPrev } );
+					return resolve ( { answer: answer, direction: _directionPrev } );
 				}
 				resolve ( { answer: null, direction: _directionPrev } );
 			} );
@@ -580,13 +584,13 @@ window.WSD.certificationsIF = (function () {
 		 * Since renderQuestions returns a promise, the internal promise will
 		 * @returns {Promise<unknown>}
 		 */
-		var renderQuestion = function() {
-			return new Promise(function( resolve, reject) {
+		var renderQuestion = function () {
+			return new Promise ( function ( resolve, reject ) {
 				_showQuestion ( questions[ sequence ], sequence, questions.length ).then ( function ( response ) {
 					_emitEvent ( 'onAnswer',
 						{
-							response,
-							sequence,
+							response: response,
+							sequence: sequence,
 						} );
 					if ( response.answer !== null ) {
 						_saveAnswer ( parseInt ( response.answer ), sequence, questions[ sequence ].id );
@@ -594,27 +598,27 @@ window.WSD.certificationsIF = (function () {
 					if ( response.direction === _directionNext ) {
 						sequence++;
 						if ( sequence === questions.length ) {
-							return resolve(); // resolve this promise
+							return resolve (); // resolve this promise
 						}
 					} else {
 						sequence--;
 					}
-					renderQuestion().then(function() {
-						console.log( '9');
-						resolve(); // resolve promise
-					})
+					renderQuestion ().then ( function () {
+						console.log ( '9' );
+						resolve (); // resolve promise
+					} )
 
 				} );
-			});
+			} );
 		}
 
 		// Start question loop
-		renderQuestion()
-			.then(function() {
-			// we're done..
-			_emitEvent ( 'onFinish', {} );
-			_processAnswers ( level );
-		})
+		renderQuestion ()
+			.then ( function () {
+				// we're done..
+				_emitEvent ( 'onFinish', {} );
+				_processAnswers ( level );
+			} )
 
 	}
 
@@ -665,7 +669,7 @@ window.WSD.certificationsIF = (function () {
 		_isRetake = false;
 
 		// hook into buttons
-		document.querySelector ( '.' + _retakeButton ).addEventListener ( 'click', ( event ) => {
+		document.querySelector ( '.' + _retakeButton ).addEventListener ( 'click', function ( event ) {
 			event.preventDefault ();
 			// empty session storage for retakes!
 			sessionStorage.removeItem ( _sessionStorageKey );
@@ -674,7 +678,7 @@ window.WSD.certificationsIF = (function () {
 			_showExam ( _thisExam );
 		} );
 
-		document.querySelector ( '.' + _reviewButton ).addEventListener ( 'click', ( event ) => {
+		document.querySelector ( '.' + _reviewButton ).addEventListener ( 'click', function ( event ) {
 			event.preventDefault ();
 			_isReview = true;
 			_showExam ( _thisExam );
@@ -682,7 +686,7 @@ window.WSD.certificationsIF = (function () {
 	};
 
 	var _xhr = function ( op, url, body ) {
-		return new Promise ( ( resolve, reject ) => {
+		return new Promise ( function ( resolve, reject ) {
 			var xhttp = new XMLHttpRequest ();
 
 			xhttp.onreadystatechange = function () {
@@ -707,9 +711,11 @@ window.WSD.certificationsIF = (function () {
 	var certifications = {
 
 		viewAllExams: function () {
+			alert('a');
 			// get all exams
 			_xhr ( XHR_GET, _options.endpoint + _examsEndpoint )
 				.then ( function ( exams ) {
+					alert( 'a');
 					console.log ( exams );
 					// render into a dom node
 					_allExams = exams;
@@ -782,10 +788,10 @@ window.WSD.certificationsIF = (function () {
 			                       : 'You have not passed this time.';
 
 			// ensure endpoint endswith '/'
-			_options.endpoint = options.endpoint.endsWith ( '/' ) ? options.endpoint : options.endpoint + '/';
+			// _options.endpoint = options.endpoint.endsWith ( '/' ) ? options.endpoint : options.endpoint + '/';
 
 		}
-	}
+	};
 
 	return certifications;
 }) ();
