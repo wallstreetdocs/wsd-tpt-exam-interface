@@ -11,6 +11,40 @@
 	<link rel="stylesheet" href="stylesheets/tptei1.css">
 
 	<title>TPT Exam Interface</title>
+
+	<style>
+		#console {
+			display: none;
+			border: 1px solid #999;
+			padding: 6px;
+			background: #f9f9f9;
+			margin-top: 16px;
+		}
+
+		.consoleHeader {
+			background: #999;
+			font-size: 18px;
+			padding: 6px;
+		}
+		textarea {
+			border: 1px solid #ccc;
+			background:  #f4f4f4;
+			font-family: "Courier New";
+			font-size:12px;
+			padding: 6px;
+			height: 100px;
+			overflow: scroll;
+			resize: none;
+			width: 100%;
+		}
+
+		#demo-tab-content {
+			margin-top: 12px;
+		}
+		#showConsole {
+			margin-left: 16px;
+		}
+	</style>
 </head>
 <body>
 
@@ -67,7 +101,7 @@
 							<label for="token">Authentication token</label>
 							<input type="email" class="form-control" id="authToken" aria-describedby="emailHelp"
 							       placeholder="Authentication token"
-							       value="Q6FwV5sH2Tkjq6odZWIVGIyHQwc7S4rOYHkeYkH4IXRzcimq8SbsHN8buK0pCXEB3qEWfgEUKPYNStIFLs2uBQclLds1j6RwONL05hgSyBuHuDzGqTHvNPjNJOG2hjhZfbK7yuguow0z0hCCaUBQZwNf1SeWO3rA6qVP7xV5Ub7jDw0aJyc4PfylLMUQvcS0d3nxLHMxDDQ5S6e04lNVVSeBYkRIbZGCqm0GUOAuujpJyYmItHVuENkLtDAQxs1Y">
+							       value="">
 						</div>
 						<div class="form-group">
 							<label for="endpoint">Endpoint</label>
@@ -88,13 +122,39 @@
 
 	</div>
 	<div class="tab-pane fade" id="demo-tab-content" role="tabpanel" aria-labelledby="demo-tab">
-		<h1>Demo 1 - Default rendering</h1>
-		<hr />
-		<button type="button" class="btn btn-primary getAllExams">
-			Get all exams
-		</button>
-		<hr />
-		<div id="examContainer"></div>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<a href="#" class="getAllExams">
+						Get all exams
+					</a>
+
+					<input  type="checkbox" id="showConsole" />
+					<label  for="showConsole">Show console?</label>
+					<hr/>
+
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div id="examContainer"></div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div id="console">
+						<div class="consoleHeader">Event viewer</div>
+						<div id="examConsole">
+							<textarea id="examConsoleContent" value=""
+							          readonly
+							          rows="5"></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 </div>

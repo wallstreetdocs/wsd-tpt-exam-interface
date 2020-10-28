@@ -36,10 +36,13 @@
 .wsd-answer-info {
 	background: #11b683;
 	border: 1px solid #ddd;
-	border-radius: 6px;
-	color: #f4f4f4;
+	color: #fff;
 	padding: 8px;
 	text-shadow: 1px 1px #4a4a4a;
+}
+
+.wsd-answered-correctly {
+	font-size: 24px;
 }
 
 .wsd-begin-test {
@@ -73,7 +76,6 @@
 	cursor: pointer;
 	padding: 12px;
 	transition: all 0.75s;
-	width: 33%;
 }
 
 .wsd-exam-container:hover {
@@ -123,6 +125,10 @@
 	text-shadow: 1px 1px #4a4a4a;
 }
 
+.wsd-percent {
+	font-size: 24px;
+}
+
 .wsd-result-container,
 .wsd-question-container {
 	width: 50%;
@@ -161,8 +167,36 @@ a.wsd-begin-test  {
 	float: left;
 }
 
+.wsd-result-header {
+	font-size: 36px;
+	font-weight: bold;
+}
+
+.wsd-result-header-2 {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.wsd-result-review-questions {
+	margin-top: 12px;
+	font-size: 16px;
+}
+
+.wsd-result-text {
+	font-size: 18px;
+}
+
 .wsd-review-button {
 	float: left;
+	margin-right: 12px;
+}
+
+.wsd-score-text {
+	font-size: 18px;
+}
+
+.wsd-total-answers {
+	font-size: 24px;
 }
 
 .wsd-video-container {
