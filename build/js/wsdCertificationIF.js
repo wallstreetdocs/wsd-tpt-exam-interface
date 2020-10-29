@@ -73,7 +73,7 @@ window.WSD.certificationsIF = (function () {
 	 * @private
 	 */
 	var _getAnswersFromServer = function ( level ) {
-		return _xhr ( XHR_GET, _getHostnameUrl () + _answersEndpoint + level );
+		return _xhr ( XHR_GET, _options.endpoint + _answersEndpoint + level );
 	};
 
 	/**
@@ -118,10 +118,6 @@ window.WSD.certificationsIF = (function () {
 		}
 	};
 
-	var _finish = function () {
-
-	};
-
 	/**
 	 * Given a level, return all question associated with it.
 	 *
@@ -133,6 +129,12 @@ window.WSD.certificationsIF = (function () {
 		return _allExams.certificationQuestions.filter ( function ( entry ) {
 			return entry.level === thisLevel;
 		} );
+	};
+
+	var _getURLPath = function ( url ) {
+		var urlAsString = url.toString();
+		var index = urlAsString.lastIndexOf( '/' );
+		return urlAsString.substring( index );
 	};
 
 	/**
@@ -173,7 +175,6 @@ window.WSD.certificationsIF = (function () {
 
 		// hook into begin button
 		document.querySelector ( '#wsd-begin-test-button' ).addEventListener ( 'click', function ( event ) {
-			debugger;
 			_showExam ( _thisExam );
 		} );
 	}
@@ -234,9 +235,15 @@ window.WSD.certificationsIF = (function () {
 	 * @private
 	 */
 	var _renderExamList = function () {
+
 		var output = '<div class="wsd-page">';
 		var index = 0;
+		for ( var i = 0; i < _allExams.certificationLevels.length; i++ ) {
+			var level = _allExams.certificationLevels[ i ];
+			console.log( level.video );
+		}
 		_allExams.certificationLevels.forEach ( function ( level ) {
+			console.log( 'a');
 			// if no video, don't show!
 			if ( !level.video ) {
 				return;
@@ -280,9 +287,7 @@ window.WSD.certificationsIF = (function () {
 			var container = allContainers[ i ];
 			container.addEventListener ( 'click', function ( event ) {
 				var href = document.querySelector ( '#' + this.id + ' .wsd-begin-test' );
-				var exam = new URL ( href );
-				_thisExam = exam.pathname;
-
+				_thisExam = _getURLPath( href );
 				// now find video url.  100% to have one otherwise the exam
 				// does not show
 				var input = document.querySelector ( '#' + this.id + ' input' );
@@ -696,8 +701,9 @@ window.WSD.certificationsIF = (function () {
 			};
 
 			xhttp.open ( op, url );
+			xhttp.setRequestHeader('Content-Type', 'application/json');
+			// xhttp.withCredentials = true;
 			xhttp.setRequestHeader ( 'Authorization', 'Bearer ' + _options.authToken );
-
 			if ( op === XHR_POST ) {
 				xhttp.setRequestHeader ( 'Content-Type', 'application/json' );
 				xhttp.send ( JSON.stringify ( body ) );
@@ -711,12 +717,9 @@ window.WSD.certificationsIF = (function () {
 	var certifications = {
 
 		viewAllExams: function () {
-			alert('a');
 			// get all exams
 			_xhr ( XHR_GET, _options.endpoint + _examsEndpoint )
 				.then ( function ( exams ) {
-					alert( 'a');
-					console.log ( exams );
 					// render into a dom node
 					_allExams = exams;
 					_renderExamList ();

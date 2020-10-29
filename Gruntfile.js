@@ -13,8 +13,13 @@ module.exports = grunt => {
 		uglify: {
 			options: {
 				mangle: false,
-				mangleProperties: false
+				mangleProperties: false,
+				sourceMap: true,
+				compress: {
+					drop_debugger: false
+				},
 			},
+
 			my_target: {
 				files: {
 					'public/js/wsd-exam-if.min.js': ['build/js/wsdCertificationIF.js', 'build/js/utils.js', 'build/js/main.js']
@@ -23,6 +28,6 @@ module.exports = grunt => {
 		}
 	} );
 	//grunt.loadNpmTasks ( 'grunt-eslint' );
-	grunt.registerTask ( 'default', ['eslint'] );
+	grunt.registerTask ( 'eslint', ['eslint'] );
 	grunt.registerTask ( 'minify', ['uglify'] );
 }

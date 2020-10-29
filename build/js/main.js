@@ -106,7 +106,7 @@
 				onShowQuestion: WSD.Main._onShowQuestion,
 				renderHook: WSD.Main._renderHook,
 				renderInto : '#examContainer'
-			})
+			});
 		},
 
 		// Init routine
@@ -117,7 +117,6 @@
 			self.Dom.ShowConsole.on( 'change', self._toggleConsole )
 			self.Dom.Endpoint.val( sessionStorage.getItem( 'wsd-endpoint'));
 			self.Dom.AuthToken.val( sessionStorage.getItem( 'wsd-authToken'));
-alert( 'a');
 			WSD.logger('info', 'Main initialised...');
 
 		}
