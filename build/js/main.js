@@ -95,8 +95,8 @@
 			sessionStorage.setItem( 'wsd-authToken', authToken );
 
 			WSD.certificationsIF.init( {
-				endpoint,
-				authToken,
+				endpoint: endpoint,
+				authToken: authToken,
 				animateQuestions: false,
 				eventCallback: WSD.Main._eventCallback,
 				onAnswer: WSD.Main._onAnswer,
@@ -117,7 +117,7 @@
 			self.Dom.ShowConsole.on( 'change', self._toggleConsole )
 			self.Dom.Endpoint.val( sessionStorage.getItem( 'wsd-endpoint'));
 			self.Dom.AuthToken.val( sessionStorage.getItem( 'wsd-authToken'));
-
+alert( 'a');
 			WSD.logger('info', 'Main initialised...');
 
 		}
