@@ -4,6 +4,16 @@ if ( !window.WSD ) {
 	};
 }
 
+// endswith polyfill
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function(search, this_len) {
+		if (this_len === undefined || this_len > this.length) {
+			this_len = this.length;
+		}
+		return this.substring(this_len - search.length, this_len) === search;
+	};
+}
+
 /**
  * WSD Global certification interface object
  *
@@ -243,7 +253,7 @@ window.WSD.certificationsIF = (function () {
 			console.log( level.video );
 		}
 		_allExams.certificationLevels.forEach ( function ( level ) {
-			console.log( 'a');
+
 			// if no video, don't show!
 			if ( !level.video ) {
 				return;
@@ -353,7 +363,7 @@ window.WSD.certificationsIF = (function () {
 	 */
 	var _showAnswerGrid = function () {
 		var output = '<div class="' + _gridButtonContainer + '">';
-		output += '<hr />';
+
 		for ( var i = 0; i < _userAnswers.length; i++ ) {
 			console.log ( i, _userAnswers[ i ].isCorrect );
 			var buttonText = _userAnswers[ i ].isCorrect ? '&check;' : '&#x2A09;';
@@ -485,11 +495,12 @@ window.WSD.certificationsIF = (function () {
 			output += '<div class="wsd-question-button-container">';
 			output += '<button type="button" class="btn wsd-btn-secondary wsd-question-prev-button" ' + prevDisabled + ' >Previous question</button>';
 			output += '<button type="button" class="btn wsd-btn-primary wsd-question-next-button">' + nextText + '</button>';
-			output += '</div>'; // end button container
 
 			if ( _isReview ) {
 				output += _showAnswerGrid ();
 			}
+			output += '</div>'; // end button container
+
 
 			output += '</div>'; // end question container
 
@@ -791,7 +802,7 @@ window.WSD.certificationsIF = (function () {
 			                       : 'You have not passed this time.';
 
 			// ensure endpoint endswith '/'
-			// _options.endpoint = options.endpoint.endsWith ( '/' ) ? options.endpoint : options.endpoint + '/';
+			_options.endpoint = options.endpoint.endsWith ( '/' ) ? options.endpoint : options.endpoint + '/';
 
 		}
 	};

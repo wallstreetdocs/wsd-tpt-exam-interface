@@ -10,6 +10,14 @@ module.exports = grunt => {
 			},
 			target: ['build/**/wsd*.js']
 		},
+		sass: {
+			dist: {
+				files: {
+					'public/css/main.css': 'build/sass/main.scss',
+					'public/css/plain.css': 'build/sass/plain.scss'
+				}
+			}
+		},
 		uglify: {
 			options: {
 				mangle: false,
@@ -30,4 +38,5 @@ module.exports = grunt => {
 	//grunt.loadNpmTasks ( 'grunt-eslint' );
 	grunt.registerTask ( 'eslint', ['eslint'] );
 	grunt.registerTask ( 'minify', ['uglify'] );
+	grunt.registerTask ( 'css_compile', ['sass'] );
 }
